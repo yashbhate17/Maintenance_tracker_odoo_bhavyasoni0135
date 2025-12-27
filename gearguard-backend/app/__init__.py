@@ -1,1 +1,1 @@
-# GearGuard Backend - App Package
+# App package
