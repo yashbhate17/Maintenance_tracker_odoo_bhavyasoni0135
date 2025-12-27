@@ -1,14 +1,11 @@
 from fastapi import FastAPI
-from app.database import Base, engine
-from app.routes import auth, equipment, teams, requests
+from app.routes import equipment, teams, users, requests
 
-Base.metadata.create_all(bind=engine)
+app = FastAPI()
 
-app = FastAPI(title="GearGuard Backend")
-
-app.include_router(auth.router)
 app.include_router(equipment.router)
 app.include_router(teams.router)
+app.include_router(users.router)
 app.include_router(requests.router)
 
 @app.get("/")

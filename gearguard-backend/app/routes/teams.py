@@ -1,21 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import MaintenanceTeam
-from app.schemas import TeamCreate
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/")
-def create_team(data: TeamCreate, db: Session = Depends(get_db)):
-    team = MaintenanceTeam(name=data.name)
+def create_team(data: dict, db: Session = Depends(get_db)):
+    team = MaintenanceTeam(name=data["name"])
     db.add(team)
     db.commit()
-    return {"message": "Team created"}
+    db.refresh(team)
+    return {"message": "Team created", "team_id": team.id}

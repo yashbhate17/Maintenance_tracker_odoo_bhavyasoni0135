@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import User
@@ -18,5 +18,5 @@ def get_db():
 def login(data: LoginSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.password):
-        return {"error": "Invalid credentials"}
-    return {"message": "Login successful", "role": user.role}
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    return {"message": "Login successful", "role": user.role, "name": user.name, "email": user.email}

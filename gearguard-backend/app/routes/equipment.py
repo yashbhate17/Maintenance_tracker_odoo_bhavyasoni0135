@@ -1,21 +1,21 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import Equipment
-from app.schemas import EquipmentCreate
 
 router = APIRouter(prefix="/equipment", tags=["Equipment"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/")
-def add_equipment(data: EquipmentCreate, db: Session = Depends(get_db)):
-    eq = Equipment(**data.dict())
-    db.add(eq)
+def create_equipment(data: dict, db: Session = Depends(get_db)):
+    equipment = Equipment(
+        name=data["name"],
+        serial_number=data["serial_number"],
+        department=data["department"],
+        location=data["location"],
+        warranty_expiry=data.get("warranty_expiry"),
+        maintenance_team_id=data["maintenance_team_id"]
+    )
+    db.add(equipment)
     db.commit()
-    return {"message": "Equipment added"}
+    db.refresh(equipment)
+    return {"message": "Equipment created", "equipment_id": equipment.id}
